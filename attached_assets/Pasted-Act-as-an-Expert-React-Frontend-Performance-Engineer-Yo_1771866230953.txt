@@ -1,0 +1,87 @@
+Act as an Expert React & Frontend Performance Engineer. Your task is to build a single-file React application called "csv.repair".
+
+It is a client-side tool for analyzing, querying, and fixing massive, broken CSV files that would normally crash Excel.
+
+🛠️ Tech Stack & Constraints
+
+React (Hooks: useState, useEffect, useRef, useMemo).
+
+Tailwind CSS for styling (use a dark, modern theme: slate-950, slate-900, blue-600 accents).
+
+lucide-react for icons.
+
+IMPORTANT: You must load external libraries dynamically via <script> tags injected in useEffect:
+
+PapaParse (for CSV parsing): https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js
+
+AlaSQL (for SQL queries): https://cdnjs.cloudflare.com/ajax/libs/alasql/4.2.2/alasql.min.js
+
+The entire application MUST be contained within a SINGLE file.
+
+📋 Core Features & Architecture
+
+1. File Upload & Parsing
+
+A header bar with a "Load CSV" button.
+
+Use PapaParse with worker: true, header: true, and skipEmptyLines: true to prevent UI freezing during large file loads.
+
+Store parsed data, headers, meta (delimiter), and errors in the state.
+
+2. Layout & Navigation
+
+A left sidebar with 3 tabs: "Data Editor", "SQL Query", "Health Check".
+
+A main workspace area that switches content based on the active tab.
+
+Provide a beautiful, informative "Empty State" when no file is loaded.
+
+3. Data Editor & Custom Virtualization (CRITICAL)
+
+Do NOT use standard tables. You must implement a custom VirtualTable component from scratch to handle millions of rows without lagging.
+
+The VirtualTable must:
+
+Calculate visibleRows based on container height and scrollTop.
+
+Have a sticky header.
+
+SUPPORT HORIZONTAL SCROLLING: If there are many columns, the header's scrollLeft must perfectly sync with the body's scrollLeft. Use fixed column widths (e.g., 150px) to force a horizontal scrollbar.
+
+REPAIR MODE: Support inline editing. On double-click of any cell, switch it to an <input>. Save changes on Enter or onBlur, cancel on Escape.
+
+4. Export Functionality
+
+Add an "Export Fixed CSV" button in the main header (visible only when data exists).
+
+Use PapaParse.unparse() to convert the mutated state data back to CSV string.
+
+Trigger a file download (repaired_filename.csv).
+
+5. SQL Query Tab
+
+A textarea for writing SQL. Default to SELECT * FROM ? LIMIT 10.
+
+A "RUN" button that executes the query using alasql(query, [data]).
+
+Display results in a read-only instance of your VirtualTable.
+
+Gracefully handle and display SQL syntax errors in a red alert box.
+
+6. Health Check Tab
+
+Display a list of structural errors returned by PapaParse (parseErrors).
+
+If no errors, show a green success message.
+
+If errors exist, render a list showing the error.type, error.message, and the specific row number.
+
+🎨 UI/UX Guidelines
+
+Make it look premium (shadows, rounded borders, clean typography).
+
+Include a "BETA" badge in the header next to the "csv.repair" logo.
+
+When loading a file, show a full-screen overlay with a pulsing loading bar.
+
+Write the complete, runnable code for this application now.
