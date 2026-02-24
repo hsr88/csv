@@ -126,8 +126,8 @@ export function PageHeader() {
 
 export function PageFooter() {
   return (
-    <footer className="hidden md:block border-t border-border bg-card/50 backdrop-blur-sm" data-testid="page-footer">
-      <div className="max-w-5xl mx-auto px-4 py-6">
+    <footer className="hidden md:block border-t border-border bg-card/50 backdrop-blur-sm flex-shrink-0" data-testid="page-footer">
+      <div className="max-w-5xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <FileSpreadsheet className="w-3.5 h-3.5 text-blue-400" />
@@ -135,7 +135,7 @@ export function PageFooter() {
               csv<span className="text-blue-400">.</span>repair
             </span>
             <span className="mx-1">·</span>
-            <span>&copy; {new Date().getFullYear()}</span>
+            <span>&copy; {new Date().getFullYear()} — Fix your data, not your nerves.</span>
           </div>
           <div className="flex items-center gap-4">
             <a

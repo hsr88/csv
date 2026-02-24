@@ -55,7 +55,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Navigation } from "@/components/navigation";
+import { Navigation, PageFooter } from "@/components/navigation";
 import { Link } from "wouter";
 
 type TabType = "editor" | "sql" | "health" | "charts" | "templates";
@@ -2106,6 +2106,7 @@ export default function CsvRepairPage() {
           )}
         </main>
       </div>
+      <PageFooter />
     </div>
   );
 }
