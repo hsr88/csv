@@ -136,7 +136,7 @@ export function PageFooter() {
               csv<span className="text-blue-400">.</span>repair
             </span>
             <span className="mx-1">·</span>
-            <span>&copy; {new Date().getFullYear()} - Your broken CSV ends here.</span>
+            <span>&copy; {new Date().getFullYear()} - A free CSV file repair tool.</span>
           </div>
           <div className="flex items-center gap-4">
             <a
