@@ -29,14 +29,36 @@ import {
   GitCompare,
   Keyboard,
   Columns,
+  PieChart as PieChartIcon,
+  Zap,
+  Mail,
+  Globe,
+  Phone,
+  Calendar,
+  DollarSign,
+  Hash,
+  Type,
+  Link2,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Navigation } from "@/components/navigation";
 import { Link } from "wouter";
 
-type TabType = "editor" | "sql" | "health";
+type TabType = "editor" | "sql" | "health" | "charts" | "templates";
 type SortDir = "asc" | "desc" | null;
 
 interface ParsedCSV {
@@ -72,6 +94,67 @@ interface ColumnStats {
   avg?: number;
   topValues: { value: string; count: number }[];
 }
+
+type DetectedType = "date" | "email" | "url" | "phone" | "currency" | "number" | "text";
+
+const TYPE_PATTERNS: { type: DetectedType; test: (v: string) => boolean; icon: typeof Mail; color: string; label: string }[] = [
+  {
+    type: "email",
+    test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+    icon: Mail, color: "text-purple-400", label: "Email",
+  },
+  {
+    type: "url",
+    test: (v) => /^(https?:\/\/|www\.)[^\s]+\.[^\s]{2,}$/i.test(v.trim()),
+    icon: Globe, color: "text-cyan-400", label: "URL",
+  },
+  {
+    type: "phone",
+    test: (v) => /^[\+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]{6,15}$/.test(v.trim()) && /\d{7,}/.test(v.replace(/\D/g, "")),
+    icon: Phone, color: "text-green-400", label: "Phone",
+  },
+  {
+    type: "currency",
+    test: (v) => /^[$€£¥₹]\s?[\d,]+(\.\d{1,2})?$|^[\d,]+(\.\d{1,2})?\s?[$€£¥₹]$/.test(v.trim()),
+    icon: DollarSign, color: "text-yellow-400", label: "Currency",
+  },
+  {
+    type: "date",
+    test: (v) => {
+      const t = v.trim();
+      if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(t)) return !isNaN(Date.parse(t));
+      if (/^\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/.test(t)) return !isNaN(Date.parse(t));
+      if (/^[A-Za-z]{3,}\s+\d{1,2},?\s+\d{4}/.test(t)) return !isNaN(Date.parse(t));
+      return false;
+    },
+    icon: Calendar, color: "text-orange-400", label: "Date",
+  },
+  {
+    type: "number",
+    test: (v) => v.trim() !== "" && !isNaN(Number(v.trim())),
+    icon: Hash, color: "text-blue-400", label: "Number",
+  },
+];
+
+function detectColumnType(data: Record<string, string>[], header: string): { type: DetectedType; confidence: number; icon: typeof Mail; color: string; label: string } {
+  const values = data.map((r) => r[header] ?? "").filter((v) => v.trim() !== "");
+  if (values.length === 0) return { type: "text", confidence: 0, icon: Type, color: "text-muted-foreground", label: "Text" };
+
+  const sampleSize = Math.min(values.length, 200);
+  const sample = values.slice(0, sampleSize);
+
+  for (const pattern of TYPE_PATTERNS) {
+    const matches = sample.filter((v) => pattern.test(v)).length;
+    const confidence = matches / sampleSize;
+    if (confidence >= 0.6) {
+      return { type: pattern.type, confidence, icon: pattern.icon, color: pattern.color, label: pattern.label };
+    }
+  }
+
+  return { type: "text", confidence: 1, icon: Type, color: "text-muted-foreground", label: "Text" };
+}
+
+const CHART_COLORS = ["#3b82f6", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#ec4899", "#6366f1", "#14b8a6", "#f97316"];
 
 const ROW_HEIGHT = 36;
 const COL_WIDTH = 180;
@@ -481,7 +564,8 @@ function SearchReplaceBar({
   );
 }
 
-function ColumnStatsPanel({ stats, onClose }: { stats: ColumnStats; onClose: () => void }) {
+function ColumnStatsPanel({ stats, onClose, detectedType }: { stats: ColumnStats; onClose: () => void; detectedType?: { type: DetectedType; confidence: number; icon: typeof Mail; color: string; label: string } }) {
+  const TypeIcon = detectedType?.icon || Type;
   return (
     <div className="absolute right-4 top-14 z-30 w-72 bg-card border border-border rounded-lg shadow-xl p-4 space-y-3" data-testid="column-stats-panel">
       <div className="flex items-center justify-between">
@@ -504,8 +588,11 @@ function ColumnStatsPanel({ stats, onClose }: { stats: ColumnStats; onClose: () 
           <p className={`font-mono ${stats.emptyCount > 0 ? "text-amber-400" : "text-foreground"}`}>{stats.emptyCount.toLocaleString()}</p>
         </div>
         <div className="p-2 rounded bg-muted/60 border border-border/50">
-          <p className="text-muted-foreground">Type</p>
-          <p className="font-mono text-foreground">{stats.isNumeric ? "Numeric" : "Text"}</p>
+          <p className="text-muted-foreground">Detected Type</p>
+          <div className="flex items-center gap-1">
+            <TypeIcon className={`w-3 h-3 ${detectedType?.color || "text-muted-foreground"}`} />
+            <p className={`font-mono ${detectedType?.color || "text-foreground"}`} data-testid="text-detected-type">{detectedType?.label || (stats.isNumeric ? "Number" : "Text")}</p>
+          </div>
         </div>
       </div>
       {stats.isNumeric && (
@@ -725,6 +812,7 @@ function DataEditorTab({
   onSort,
   onColumnStats,
   columnStats,
+  columnStatsDetectedType,
   onCloseStats,
   onContextMenu,
   contextMenu,
@@ -739,6 +827,7 @@ function DataEditorTab({
   onSort: (header: string) => void;
   onColumnStats: (header: string) => void;
   columnStats: ColumnStats | null;
+  columnStatsDetectedType: ReturnType<typeof detectColumnType> | null;
   onCloseStats: () => void;
   onContextMenu: (e: React.MouseEvent, rowIndex: number, header: string) => void;
   contextMenu: { x: number; y: number; row: number; col: string } | null;
@@ -773,7 +862,7 @@ function DataEditorTab({
           onContextMenu={onContextMenu}
           highlightCells={highlightCells}
         />
-        {columnStats && <ColumnStatsPanel stats={columnStats} onClose={onCloseStats} />}
+        {columnStats && <ColumnStatsPanel stats={columnStats} onClose={onCloseStats} detectedType={columnStatsDetectedType || undefined} />}
       </div>
     </div>
   );
@@ -914,6 +1003,391 @@ function HealthCheckTab({ csvData }: { csvData: ParsedCSV }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ChartsTab({ csvData }: { csvData: ParsedCSV }) {
+  const [selectedCol, setSelectedCol] = useState(csvData.headers[0] || "");
+  const colType = useMemo(() => detectColumnType(csvData.data, selectedCol), [csvData.data, selectedCol]);
+  const isNumeric = colType.type === "number" || colType.type === "currency";
+
+  const chartData = useMemo(() => {
+    const values = csvData.data.map((r) => r[selectedCol] ?? "").filter((v) => v.trim() !== "");
+    if (isNumeric) {
+      const nums = values.map((v) => parseFloat(v.replace(/[$€£¥₹,]/g, ""))).filter((n) => !isNaN(n));
+      if (nums.length === 0) return [];
+      const min = Math.min(...nums);
+      const max = Math.max(...nums);
+      const range = max - min;
+      const bucketCount = Math.min(20, Math.max(5, Math.ceil(Math.sqrt(nums.length))));
+      const bucketSize = range / bucketCount || 1;
+      const buckets: { range: string; count: number }[] = [];
+      for (let i = 0; i < bucketCount; i++) {
+        const lo = min + i * bucketSize;
+        const hi = lo + bucketSize;
+        const label = `${lo.toFixed(1)}-${hi.toFixed(1)}`;
+        buckets.push({ range: label, count: 0 });
+      }
+      for (const n of nums) {
+        let idx = Math.floor((n - min) / bucketSize);
+        if (idx >= bucketCount) idx = bucketCount - 1;
+        buckets[idx].count++;
+      }
+      return buckets;
+    } else {
+      const freq: Record<string, number> = {};
+      for (const v of values) freq[v] = (freq[v] || 0) + 1;
+      return Object.entries(freq)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 15)
+        .map(([name, value]) => ({ name: name.length > 20 ? name.slice(0, 17) + "..." : name, value, fullName: name }));
+    }
+  }, [csvData.data, selectedCol, isNumeric]);
+
+  const TypeIcon = colType.icon;
+
+  return (
+    <div className="flex flex-col h-full gap-4 p-4" data-testid="tab-charts">
+      <div className="flex items-center gap-2">
+        <PieChartIcon className="w-4 h-4 text-violet-400" />
+        <h2 className="text-sm font-semibold text-foreground">Column Distribution</h2>
+      </div>
+      <div className="flex items-center gap-3 flex-wrap">
+        <select
+          className="bg-card border border-border rounded-md px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-blue-500"
+          value={selectedCol}
+          onChange={(e) => setSelectedCol(e.target.value)}
+          data-testid="select-chart-column"
+        >
+          {csvData.headers.map((h) => (
+            <option key={h} value={h}>{h}</option>
+          ))}
+        </select>
+        <div className="flex items-center gap-1.5">
+          <TypeIcon className={`w-3.5 h-3.5 ${colType.color}`} />
+          <span className={`text-xs ${colType.color}`} data-testid="text-chart-type">{colType.label}</span>
+          <span className="text-xs text-muted-foreground">({Math.round(colType.confidence * 100)}% confidence)</span>
+        </div>
+        <Badge variant="secondary" className="no-default-active-elevate text-xs">
+          {isNumeric ? "Histogram" : "Pie Chart"}
+        </Badge>
+      </div>
+
+      <div className="flex-1 min-h-0">
+        {chartData.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+            No data available for this column
+          </div>
+        ) : isNumeric ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 10, right: 20, bottom: 40, left: 20 }}>
+              <XAxis dataKey="range" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} angle={-35} textAnchor="end" interval={0} />
+              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))" }}
+                labelStyle={{ color: "hsl(var(--foreground))" }}
+              />
+              <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius="70%"
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                labelLine={{ stroke: "hsl(var(--muted-foreground))" }}
+              >
+                {chartData.map((_, idx) => (
+                  <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))" }}
+              />
+              <Legend wrapperStyle={{ fontSize: "12px", color: "hsl(var(--muted-foreground))" }} />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface RepairTemplate {
+  id: string;
+  name: string;
+  description: string;
+  icon: typeof Wrench;
+  color: string;
+  apply: (data: Record<string, string>[], headers: string[]) => { data: Record<string, string>[]; headers: string[]; changes: number };
+}
+
+const REPAIR_TEMPLATES: RepairTemplate[] = [
+  {
+    id: "trim-whitespace",
+    name: "Trim Whitespace",
+    description: "Remove leading and trailing spaces from all cells",
+    icon: Type, color: "text-blue-400",
+    apply: (data, headers) => {
+      let changes = 0;
+      const newData = data.map((row) => {
+        const newRow = { ...row };
+        for (const h of headers) {
+          if (newRow[h] && newRow[h] !== newRow[h].trim()) {
+            newRow[h] = newRow[h].trim();
+            changes++;
+          }
+        }
+        return newRow;
+      });
+      return { data: newData, headers, changes };
+    },
+  },
+  {
+    id: "remove-empty-rows",
+    name: "Remove Empty Rows",
+    description: "Delete rows where all cells are empty",
+    icon: Trash2, color: "text-red-400",
+    apply: (data, headers) => {
+      const newData = data.filter((row) => !headers.every((h) => (row[h] ?? "").trim() === ""));
+      return { data: newData, headers, changes: data.length - newData.length };
+    },
+  },
+  {
+    id: "remove-duplicate-rows",
+    name: "Remove Duplicate Rows",
+    description: "Keep only the first occurrence of each unique row",
+    icon: Columns, color: "text-amber-400",
+    apply: (data, headers) => {
+      const seen = new Set<string>();
+      const newData = data.filter((row) => {
+        const key = headers.map((h) => row[h] ?? "").join("\x00");
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      return { data: newData, headers, changes: data.length - newData.length };
+    },
+  },
+  {
+    id: "standardize-dates",
+    name: "Standardize Dates",
+    description: "Convert detected date columns to YYYY-MM-DD format",
+    icon: Calendar, color: "text-orange-400",
+    apply: (data, headers) => {
+      let changes = 0;
+      const dateHeaders = headers.filter((h) => detectColumnType(data, h).type === "date");
+      const newData = data.map((row) => {
+        const newRow = { ...row };
+        for (const h of dateHeaders) {
+          const v = (newRow[h] ?? "").trim();
+          if (!v) continue;
+          const d = new Date(v);
+          if (!isNaN(d.getTime())) {
+            const iso = d.toISOString().split("T")[0];
+            if (iso !== v) {
+              newRow[h] = iso;
+              changes++;
+            }
+          }
+        }
+        return newRow;
+      });
+      return { data: newData, headers, changes };
+    },
+  },
+  {
+    id: "lowercase-emails",
+    name: "Lowercase Emails",
+    description: "Convert all email addresses to lowercase",
+    icon: Mail, color: "text-purple-400",
+    apply: (data, headers) => {
+      let changes = 0;
+      const emailHeaders = headers.filter((h) => detectColumnType(data, h).type === "email");
+      const newData = data.map((row) => {
+        const newRow = { ...row };
+        for (const h of emailHeaders) {
+          const v = (newRow[h] ?? "").trim();
+          if (v && v !== v.toLowerCase()) {
+            newRow[h] = v.toLowerCase();
+            changes++;
+          }
+        }
+        return newRow;
+      });
+      return { data: newData, headers, changes };
+    },
+  },
+  {
+    id: "normalize-phones",
+    name: "Normalize Phone Numbers",
+    description: "Strip non-digit characters from phone number columns (keep leading +)",
+    icon: Phone, color: "text-green-400",
+    apply: (data, headers) => {
+      let changes = 0;
+      const phoneHeaders = headers.filter((h) => detectColumnType(data, h).type === "phone");
+      const newData = data.map((row) => {
+        const newRow = { ...row };
+        for (const h of phoneHeaders) {
+          const v = (newRow[h] ?? "").trim();
+          if (!v) continue;
+          const hasPlus = v.startsWith("+");
+          const digits = v.replace(/\D/g, "");
+          const normalized = (hasPlus ? "+" : "") + digits;
+          if (normalized !== v) {
+            newRow[h] = normalized;
+            changes++;
+          }
+        }
+        return newRow;
+      });
+      return { data: newData, headers, changes };
+    },
+  },
+  {
+    id: "fix-encoding",
+    name: "Fix Common Encoding Issues",
+    description: "Replace common mojibake characters (Ã©, Ã¨, etc.) with correct UTF-8",
+    icon: Zap, color: "text-cyan-400",
+    apply: (data, headers) => {
+      let changes = 0;
+      const replacements: [string, string][] = [
+        ["Ã©", "é"], ["Ã¨", "è"], ["Ã ", "à"], ["Ã¢", "â"], ["Ã®", "î"],
+        ["Ã´", "ô"], ["Ã¹", "ù"], ["Ã»", "û"], ["Ã§", "ç"], ["Ã«", "ë"],
+        ["Ã¯", "ï"], ["Ã¼", "ü"], ["Ã¶", "ö"], ["Ã¤", "ä"], ["Ã±", "ñ"],
+        ["\u00e2\u0080\u0099", "\u2019"], ["\u00e2\u0080\u009c", "\u201c"], ["\u00e2\u0080\u009d", "\u201d"], ["\u00e2\u0080\u0094", "\u2014"], ["\u00e2\u0080\u0093", "\u2013"],
+        ["Â°", "°"], ["Â£", "£"], ["Â€", "€"],
+      ];
+      const newData = data.map((row) => {
+        const newRow = { ...row };
+        for (const h of headers) {
+          let v = newRow[h] ?? "";
+          let changed = false;
+          for (const [from, to] of replacements) {
+            if (v.includes(from)) {
+              v = v.split(from).join(to);
+              changed = true;
+            }
+          }
+          if (changed) {
+            newRow[h] = v;
+            changes++;
+          }
+        }
+        return newRow;
+      });
+      return { data: newData, headers, changes };
+    },
+  },
+  {
+    id: "trim-urls",
+    name: "Clean URLs",
+    description: "Remove trailing slashes and whitespace from URL columns",
+    icon: Link2, color: "text-cyan-400",
+    apply: (data, headers) => {
+      let changes = 0;
+      const urlHeaders = headers.filter((h) => detectColumnType(data, h).type === "url");
+      const newData = data.map((row) => {
+        const newRow = { ...row };
+        for (const h of urlHeaders) {
+          const v = (newRow[h] ?? "").trim();
+          if (!v) continue;
+          const cleaned = v.replace(/\/+$/, "");
+          if (cleaned !== newRow[h]) {
+            newRow[h] = cleaned;
+            changes++;
+          }
+        }
+        return newRow;
+      });
+      return { data: newData, headers, changes };
+    },
+  },
+];
+
+function RepairTemplatesTab({
+  csvData,
+  onApplyTemplate,
+}: {
+  csvData: ParsedCSV;
+  onApplyTemplate: (templateId: string, result: { data: Record<string, string>[]; headers: string[]; changes: number }) => void;
+}) {
+  const [lastApplied, setLastApplied] = useState<{ id: string; changes: number } | null>(null);
+
+  const columnTypes = useMemo(() => {
+    return csvData.headers.map((h) => ({
+      header: h,
+      ...detectColumnType(csvData.data, h),
+    }));
+  }, [csvData.data, csvData.headers]);
+
+  return (
+    <div className="flex flex-col h-full gap-4 p-4" data-testid="tab-templates">
+      <div className="flex items-center gap-2">
+        <Zap className="w-4 h-4 text-amber-400" />
+        <h2 className="text-sm font-semibold text-foreground">Repair Templates</h2>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Detected Column Types</h3>
+        <div className="flex flex-wrap gap-2">
+          {columnTypes.map((ct) => {
+            const Icon = ct.icon;
+            return (
+              <div key={ct.header} className="flex items-center gap-1.5 px-2 py-1 bg-muted/60 border border-border/50 rounded-md text-xs" data-testid={`type-badge-${ct.header}`}>
+                <Icon className={`w-3 h-3 ${ct.color}`} />
+                <span className="text-muted-foreground">{ct.header}:</span>
+                <span className={ct.color}>{ct.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto space-y-2">
+        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Available Templates</h3>
+        {REPAIR_TEMPLATES.map((tpl) => {
+          const Icon = tpl.icon;
+          const isLastApplied = lastApplied?.id === tpl.id;
+          return (
+            <div key={tpl.id} className="flex items-center gap-3 p-3 bg-muted/40 border border-border/50 rounded-lg hover:bg-muted/60 transition-colors" data-testid={`template-${tpl.id}`}>
+              <div className={`p-2 rounded-md bg-card border border-border`}>
+                <Icon className={`w-4 h-4 ${tpl.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">{tpl.name}</p>
+                <p className="text-xs text-muted-foreground">{tpl.description}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {isLastApplied && (
+                  <span className="text-xs text-emerald-400" data-testid={`template-result-${tpl.id}`}>
+                    {lastApplied.changes > 0 ? `${lastApplied.changes} fixed` : "No issues"}
+                  </span>
+                )}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    const result = tpl.apply([...csvData.data.map((r) => ({ ...r }))], [...csvData.headers]);
+                    setLastApplied({ id: tpl.id, changes: result.changes });
+                    onApplyTemplate(tpl.id, result);
+                  }}
+                  data-testid={`button-apply-${tpl.id}`}
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -1163,12 +1637,32 @@ export default function CsvRepairPage() {
     [csvData, sortCol, sortDir, history]
   );
 
+  const [columnStatsDetectedType, setColumnStatsDetectedType] = useState<ReturnType<typeof detectColumnType> | null>(null);
+
   const handleColumnStats = useCallback(
     (header: string) => {
       if (!csvData) return;
       setColumnStats(computeColumnStats(csvData.data, header));
+      setColumnStatsDetectedType(detectColumnType(csvData.data, header));
     },
     [csvData]
+  );
+
+  const handleApplyTemplate = useCallback(
+    (templateId: string, result: { data: Record<string, string>[]; headers: string[]; changes: number }) => {
+      if (!csvData) return;
+      if (result.changes === 0) {
+        toast({ title: "No Changes", description: "This template found nothing to fix." });
+        return;
+      }
+      pushHistory(result.data, result.headers, `Template: ${templateId}`);
+      setCsvData((d) => d ? { ...d, data: result.data, headers: result.headers } : d);
+      toast({
+        title: "Template Applied",
+        description: `Fixed ${result.changes} issue${result.changes !== 1 ? "s" : ""}.`,
+      });
+    },
+    [csvData, pushHistory, toast]
   );
 
   const handleContextMenu = useCallback(
@@ -1345,6 +1839,8 @@ export default function CsvRepairPage() {
   const tabs = [
     { id: "editor" as TabType, label: "Data Editor", icon: Table2, color: "text-blue-400" },
     { id: "sql" as TabType, label: "SQL Query", icon: Terminal, color: "text-emerald-400" },
+    { id: "charts" as TabType, label: "Charts", icon: PieChartIcon, color: "text-violet-400" },
+    { id: "templates" as TabType, label: "Repair Templates", icon: Zap, color: "text-amber-400" },
     { id: "health" as TabType, label: "Health Check", icon: HeartPulse, color: "text-rose-400" },
   ];
 
@@ -1578,7 +2074,8 @@ export default function CsvRepairPage() {
               onSort={handleSort}
               onColumnStats={handleColumnStats}
               columnStats={columnStats}
-              onCloseStats={() => setColumnStats(null)}
+              columnStatsDetectedType={columnStatsDetectedType}
+              onCloseStats={() => { setColumnStats(null); setColumnStatsDetectedType(null); }}
               onContextMenu={handleContextMenu}
               contextMenu={contextMenu}
               searchState={searchState}
@@ -1586,6 +2083,10 @@ export default function CsvRepairPage() {
             />
           ) : activeTab === "sql" ? (
             <SQLQueryTab csvData={csvData} />
+          ) : activeTab === "charts" ? (
+            <ChartsTab csvData={csvData} />
+          ) : activeTab === "templates" ? (
+            <RepairTemplatesTab csvData={csvData} onApplyTemplate={handleApplyTemplate} />
           ) : (
             <HealthCheckTab csvData={csvData} />
           )}

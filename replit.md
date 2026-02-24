@@ -1,12 +1,12 @@
 # csv.repair
 
 ## Overview
-A client-side tool for analyzing, querying, and fixing massive, broken CSV files. Built with React, Tailwind CSS, PapaParse for CSV parsing, and AlaSQL for SQL queries.
+A client-side tool for analyzing, querying, and fixing massive, broken CSV files. Built with React, Tailwind CSS, PapaParse for CSV parsing, AlaSQL for SQL queries, and Recharts for data visualization.
 
 ## Architecture
 - **Frontend-only**: No backend API needed. All processing happens in the browser.
 - **Stack**: React + TypeScript + Tailwind CSS + Vite
-- **Libraries**: PapaParse (CSV parsing with web workers), AlaSQL (SQL queries on data)
+- **Libraries**: PapaParse (CSV parsing with web workers), AlaSQL (SQL queries on data), Recharts (charts/visualization)
 - **Theme**: Dark/Light mode with CSS variable system. Default dark. Toggle via navigation menu. Preference stored in localStorage.
 
 ## Key Features
@@ -28,12 +28,22 @@ A client-side tool for analyzing, querying, and fixing massive, broken CSV files
 - CSV export of repaired data
 - Dark/Light theme toggle
 - Responsive navigation with hamburger menu on mobile
+- Column Distribution Charts (histogram for numeric, pie chart for categorical) via Recharts
+- Automatic data type detection (date, email, URL, phone, currency, number, text)
+- Repair Templates (trim whitespace, remove empty/duplicate rows, standardize dates, lowercase emails, normalize phones, fix encoding, clean URLs)
 
 ## Pages
 - `/` - Main CSV repair tool
 - `/about` - About page describing the tool
 - `/faq` - Frequently Asked Questions with accordion
 - `/privacy` - Privacy Policy (Google Analytics, GitHub contact)
+
+## Sidebar Tabs
+- **Data Editor** - Main table view with inline editing
+- **SQL Query** - Run SQL queries on CSV data
+- **Charts** - Column distribution visualization (histogram/pie chart)
+- **Repair Templates** - Predefined one-click repair actions with data type detection
+- **Health Check** - File diagnostics and error listing
 
 ## Project Structure
 - `client/src/pages/csv-repair.tsx` - Main application page (all components)

@@ -64,6 +64,18 @@ const faqs: FAQItem[] = [
     question: "Why can't I open my CSV file in Excel?",
     answer: "Excel has a row limit of approximately 1,048,576 rows. If your CSV exceeds this limit, Excel will either refuse to open it or silently truncate the data. csv.repair has no such limitation and can handle files with millions of rows.",
   },
+  {
+    question: "What are Repair Templates?",
+    answer: "Repair Templates are predefined, one-click repair actions that target common CSV issues. Available templates include: Trim Whitespace, Remove Empty Rows, Remove Duplicate Rows, Standardize Dates (converts to YYYY-MM-DD), Lowercase Emails, Normalize Phone Numbers (strips formatting), Fix Common Encoding Issues (fixes mojibake characters), and Clean URLs (removes trailing slashes). Templates use automatic data type detection to target only the relevant columns.",
+  },
+  {
+    question: "How does automatic data type detection work?",
+    answer: "csv.repair samples values from each column and uses pattern matching to determine the most likely data type: date, email, URL, phone number, currency, number, or plain text. The detection confidence is shown as a percentage. This information is used by repair templates to apply fixes only to the correct columns — for example, the 'Lowercase Emails' template only modifies columns detected as email addresses.",
+  },
+  {
+    question: "Can I visualize the distribution of values in a column?",
+    answer: "Yes! The Charts tab lets you select any column and see its value distribution. Numeric and currency columns display a histogram showing frequency across value ranges. Categorical columns (text, email, etc.) display a pie chart showing the proportion of the most common values. The chart type is selected automatically based on the detected column type.",
+  },
 ];
 
 function FAQAccordion({ item }: { item: FAQItem }) {
