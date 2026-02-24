@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, Sun, Moon, FileSpreadsheet, Info, HelpCircle, Shield } from "lucide-react";
+import { Menu, X, Sun, Moon, FileSpreadsheet, Info, HelpCircle, Shield, Heart, Github } from "lucide-react";
 import { useTheme } from "./theme-provider";
 import { Badge } from "@/components/ui/badge";
 
@@ -121,5 +121,46 @@ export function PageHeader() {
       </Link>
       <Navigation />
     </header>
+  );
+}
+
+export function PageFooter() {
+  return (
+    <footer className="hidden md:block border-t border-border bg-card/50 backdrop-blur-sm" data-testid="page-footer">
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <FileSpreadsheet className="w-3.5 h-3.5 text-blue-400" />
+            <span>
+              csv<span className="text-blue-400">.</span>repair
+            </span>
+            <span className="mx-1">·</span>
+            <span>&copy; {new Date().getFullYear()}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/hsr88"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              data-testid="footer-github"
+            >
+              <Github className="w-3.5 h-3.5" />
+              Author
+            </a>
+            <a
+              href="https://ko-fi.com/hsr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              data-testid="footer-kofi"
+            >
+              <Heart className="w-3.5 h-3.5" />
+              Support
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }

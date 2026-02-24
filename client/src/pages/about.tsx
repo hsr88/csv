@@ -1,5 +1,5 @@
-import { FileSpreadsheet } from "lucide-react";
-import { PageHeader } from "@/components/navigation";
+import { FileSpreadsheet, Heart } from "lucide-react";
+import { PageHeader, PageFooter } from "@/components/navigation";
 
 export default function AboutPage() {
   return (
@@ -60,8 +60,24 @@ export default function AboutPage() {
           <p>
             Built with React, TypeScript, and Tailwind CSS. CSV parsing is powered by PapaParse with Web Worker support for non-blocking processing. SQL query execution uses AlaSQL. The virtual table renderer is custom-built for maximum performance with minimal memory overhead.
           </p>
+
+          <h2 className="text-xl font-semibold text-foreground mt-8">Support the Project</h2>
+          <p>
+            If you find csv.repair useful and want to support its development, consider buying me a coffee. Every contribution helps keep the project alive and growing.
+          </p>
+          <a
+            href="https://ko-fi.com/hsr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors text-sm font-medium no-underline"
+            data-testid="about-kofi"
+          >
+            <Heart className="w-4 h-4" />
+            Support on Ko-fi
+          </a>
         </div>
       </div>
+      <PageFooter />
     </div>
   );
 }

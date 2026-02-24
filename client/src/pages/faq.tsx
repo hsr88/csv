@@ -1,6 +1,6 @@
 import { HelpCircle, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { PageHeader } from "@/components/navigation";
+import { PageHeader, PageFooter } from "@/components/navigation";
 
 interface FAQItem {
   question: string;
@@ -115,6 +115,7 @@ export default function FAQPage() {
           ))}
         </div>
       </div>
+      <PageFooter />
     </div>
   );
 }

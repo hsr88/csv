@@ -1,5 +1,5 @@
 import { Shield } from "lucide-react";
-import { PageHeader } from "@/components/navigation";
+import { PageHeader, PageFooter } from "@/components/navigation";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -103,6 +103,7 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
       </div>
+      <PageFooter />
     </div>
   );
 }
