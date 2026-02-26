@@ -75,6 +75,11 @@ function InlineFormat({ text }: { text: string }) {
     } else if (part.startsWith("[")) {
       const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
       if (match) {
+        // Skip adding the capture groups `match[1]` and `match[2]` which split will output *after* this full match block.
+        // `parts.split(/(...)/g)` puts the capture groups right after the matched string in the array.
+        // We know that `match[1]` and `match[2]` are the next two items. We can manually fast-forward 'i'.
+        i += 2;
+
         const isInternal = match[2].startsWith("/") || match[2].includes("csv.repair");
         if (isInternal && (match[2] === "https://csv.repair" || match[2] === "https://csv.repair/")) {
           elements.push(<Link key={key++} href="/"><span className="text-blue-400 hover:text-blue-300 underline underline-offset-2 cursor-pointer">{match[1]}</span></Link>);
@@ -85,11 +90,6 @@ function InlineFormat({ text }: { text: string }) {
         elements.push(part);
       }
     } else {
-      // Don't duplicate text if it was extracted as a capture group in `part.split(...)`
-      if (i > 0 && parts[i - 1]?.startsWith("[")) {
-        const prevMatch = parts[i - 1].match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-        if (prevMatch && (part === prevMatch[1] || part === prevMatch[2])) continue;
-      }
       elements.push(part);
     }
   }
