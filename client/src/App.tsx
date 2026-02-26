@@ -8,8 +8,8 @@ import CsvRepairPage from "@/pages/csv-repair";
 import AboutPage from "@/pages/about";
 import FAQPage from "@/pages/faq";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
+import BlogPage from "@/pages/blog";
 import NotFound from "@/pages/not-found";
-import { CookieBanner } from "@/components/cookie-banner";
 
 function Router() {
   return (
@@ -18,6 +18,8 @@ function Router() {
       <Route path="/about" component={AboutPage} />
       <Route path="/faq" component={FAQPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
+      <Route path="/blog/:slug" component={BlogPage} />
+      <Route path="/blog" component={BlogPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -30,7 +32,6 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
-          <CookieBanner />
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>

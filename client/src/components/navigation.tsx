@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, Sun, Moon, FileSpreadsheet, Info, HelpCircle, Shield, Heart, Github } from "lucide-react";
+import { Menu, X, Sun, Moon, FileSpreadsheet, Info, HelpCircle, Shield, Heart, Github, BookOpen } from "lucide-react";
 import { useTheme } from "./theme-provider";
 
 const navLinks = [
@@ -97,6 +97,20 @@ export function Navigation({ children }: { children?: React.ReactNode }) {
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               {theme === "dark" ? "Light Mode" : "Dark Mode"}
             </button>
+            <div className="h-px bg-border my-1" />
+            <Link href="/blog">
+              <button
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                  location === "/blog"
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+                data-testid="mobile-nav-blog"
+              >
+                <BookOpen className="w-4 h-4" />
+                Blog
+              </button>
+            </Link>
           </div>
         )}
       </div>
@@ -135,6 +149,12 @@ export function PageFooter() {
             <span>&copy; {new Date().getFullYear()} - A free CSV file repair tool.</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/blog">
+              <span className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer" data-testid="footer-blog">
+                <BookOpen className="w-3.5 h-3.5" />
+                Blog
+              </span>
+            </Link>
             <a
               href="https://github.com/hsr88"
               target="_blank"

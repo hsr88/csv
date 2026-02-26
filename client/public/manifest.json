@@ -1,0 +1,25 @@
+{
+  "name": "csv.repair — Fix Broken CSV Files",
+  "short_name": "csv.repair",
+  "description": "Free browser-based CSV repair tool. Fix broken, malformed, or oversized CSV files. No upload needed.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#1e1e2e",
+  "orientation": "any",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
