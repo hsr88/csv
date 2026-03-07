@@ -807,6 +807,128 @@ function KeyboardShortcutsHelp({ onClose }: { onClose: () => void }) {
   );
 }
 
+function ExportOptionsModal({
+  onClose,
+  onExport,
+}: {
+  onClose: () => void;
+  onExport: (options: { delimiter: string; decimal: string; bom: boolean }) => void;
+}) {
+  const [locale, setLocale] = useState<"us" | "eu" | "custom">("us");
+  const [delimiter, setDelimiter] = useState(",");
+  const [decimal, setDecimal] = useState(".");
+  const [bom, setBOM] = useState(false);
+
+  const handleLocaleChange = (newLocale: "us" | "eu" | "custom") => {
+    setLocale(newLocale);
+    if (newLocale === "us") {
+      setDelimiter(",");
+      setDecimal(".");
+    } else if (newLocale === "eu") {
+      setDelimiter(";");
+      setDecimal(",");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" data-testid="export-options-modal" onClick={onClose}>
+      <div className="bg-card border border-border rounded-lg shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Download className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-sm font-semibold text-foreground">Export Options</h3>
+          </div>
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent text-muted-foreground">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="p-4 space-y-4">
+          <div className="space-y-2">
+            <label className="text-xs text-muted-foreground uppercase tracking-wider">Locale Preset</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleLocaleChange("us")}
+                className={`p-2 rounded border text-sm text-left transition-colors ${
+                  locale === "us" ? "border-blue-500 bg-blue-500/10" : "border-border hover:bg-muted"
+                }`}
+                data-testid="export-locale-us"
+              >
+                <div className="font-medium">US / UK</div>
+                <div className="text-xs text-muted-foreground">Comma separator, dot decimal</div>
+              </button>
+              <button
+                onClick={() => handleLocaleChange("eu")}
+                className={`p-2 rounded border text-sm text-left transition-colors ${
+                  locale === "eu" ? "border-blue-500 bg-blue-500/10" : "border-border hover:bg-muted"
+                }`}
+                data-testid="export-locale-eu"
+              >
+                <div className="font-medium">Europe</div>
+                <div className="text-xs text-muted-foreground">Semicolon separator, comma decimal</div>
+              </button>
+            </div>
+          </div>
+
+          {locale === "custom" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Delimiter</label>
+                <select
+                  value={delimiter}
+                  onChange={(e) => setDelimiter(e.target.value)}
+                  className="w-full bg-muted border border-border rounded px-2 py-1.5 text-sm"
+                >
+                  <option value=",">Comma (,)</option>
+                  <option value=";">Semicolon (;)</option>
+                  <option value="\t">Tab</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Decimal</label>
+                <select
+                  value={decimal}
+                  onChange={(e) => setDecimal(e.target.value)}
+                  className="w-full bg-muted border border-border rounded px-2 py-1.5 text-sm"
+                >
+                  <option value=".">Dot (.)</option>
+                  <option value=",">Comma (,)</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded border border-border/50">
+            <input
+              type="checkbox"
+              id="bom-check"
+              checked={bom}
+              onChange={(e) => setBOM(e.target.checked)}
+              className="rounded border-border"
+            />
+            <label htmlFor="bom-check" className="text-sm text-muted-foreground cursor-pointer">
+              Add UTF-8 BOM (fixes Excel encoding issues)
+            </label>
+          </div>
+
+          <div className="pt-2 border-t border-border">
+            <div className="text-xs text-muted-foreground mb-3">
+              <span className="font-medium">Preview:</span> Values like 123.45 will be exported as {decimal === "," ? "123,45" : "123.45"} using &quot;{delimiter === "\t" ? "TAB" : delimiter}&quot; separator
+            </div>
+            <Button
+              onClick={() => onExport({ delimiter, decimal, bom })}
+              className="w-full gap-2"
+              data-testid="button-confirm-export"
+            >
+              <Download className="w-4 h-4" />
+              Export CSV
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DataEditorTab({
   csvData,
   onCellEdit,
@@ -1430,6 +1552,7 @@ export default function CsvRepairPage() {
 
   const [showDiff, setShowDiff] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showExportOptions, setShowExportOptions] = useState(false);
 
   const pushHistory = useCallback(
     (data: Record<string, string>[], headers: string[], label: string) => {
@@ -1599,13 +1722,51 @@ export default function CsvRepairPage() {
     [csvData, pushHistory]
   );
 
-  const handleExport = useCallback(() => {
+  type ExportLocale = "us" | "eu" | "custom";
+
+  const [exportLocale, setExportLocale] = useState<ExportLocale>("us");
+  const [exportDelimiter, setExportDelimiter] = useState(",");
+  const [exportDecimal, setExportDecimal] = useState(".");
+  const [exportBOM, setExportBOM] = useState(false);
+
+  const localePresets: Record<ExportLocale, { delimiter: string; decimal: string; label: string }> = {
+    us: { delimiter: ",", decimal: ".", label: "US/UK (comma, dot)" },
+    eu: { delimiter: ";", decimal: ",", label: "Europe (semicolon, comma)" },
+    custom: { delimiter: exportDelimiter, decimal: exportDecimal, label: "Custom" },
+  };
+
+  const handleExport = useCallback((options?: { delimiter?: string; decimal?: string; bom?: boolean }) => {
     if (!csvData) return;
-    const csv = Papa.unparse(csvData.data, {
+    
+    const delimiter = options?.delimiter ?? ",";
+    const decimal = options?.decimal ?? ".";
+    const useBOM = options?.bom ?? false;
+    
+    // Transform data to use correct decimal separator
+    const transformData = csvData.data.map((row) => {
+      const newRow: Record<string, string> = {};
+      for (const h of csvData.headers) {
+        const value = row[h] ?? "";
+        // Replace decimal point with locale-specific decimal separator
+        // but only for numeric values
+        if (decimal !== "." && /^-?\d+\.\d+$/.test(value)) {
+          newRow[h] = value.replace(".", decimal);
+        } else {
+          newRow[h] = value;
+        }
+      }
+      return newRow;
+    });
+    
+    const csv = Papa.unparse(transformData, {
       columns: csvData.headers,
+      delimiter: delimiter,
       quotes: true, // Always quote fields to preserve newlines and special chars
     });
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    
+    // Add BOM if requested (helps Excel open UTF-8 files correctly)
+    const content = useBOM ? "\uFEFF" + csv : csv;
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     const baseName = csvData.fileName.replace(/\.csv$/i, "");
@@ -1613,6 +1774,7 @@ export default function CsvRepairPage() {
     a.download = `repaired_${baseName}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    setShowExportOptions(false);
   }, [csvData]);
 
   const handleSort = useCallback(
@@ -1903,6 +2065,12 @@ export default function CsvRepairPage() {
         />
       )}
       {showShortcuts && <KeyboardShortcutsHelp onClose={() => setShowShortcuts(false)} />}
+      {showExportOptions && (
+        <ExportOptionsModal
+          onClose={() => setShowExportOptions(false)}
+          onExport={(options) => handleExport(options)}
+        />
+      )}
 
       <input
         ref={fileInputRef}
@@ -1967,7 +2135,7 @@ export default function CsvRepairPage() {
                   <Keyboard className="w-3.5 h-3.5" />
                 </Button>
                 <div className="w-px h-6 bg-border mx-0.5" />
-                <Button variant="secondary" size="sm" onClick={handleExport} className="gap-1.5 px-2" data-testid="button-export">
+                <Button variant="secondary" size="sm" onClick={() => setShowExportOptions(true)} className="gap-1.5 px-2" data-testid="button-export">
                   <Download className="w-3.5 h-3.5" />
                   <span className="hidden md:inline">Export</span>
                 </Button>
@@ -1996,7 +2164,7 @@ export default function CsvRepairPage() {
                         <GitCompare className="w-4 h-4" /> View Changes ({changeCount})
                       </button>
                     )}
-                    <button onClick={() => { handleExport(); setMobileToolsOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted transition-colors" data-testid="mobile-export">
+                    <button onClick={() => { setShowExportOptions(true); setMobileToolsOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted transition-colors" data-testid="mobile-export">
                       <Download className="w-4 h-4" /> Export CSV
                     </button>
                     <div className="h-px bg-border my-1" />
