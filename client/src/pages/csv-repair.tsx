@@ -1615,15 +1615,32 @@ function SEOContentSection() {
             </div>
 
             <div className="pt-4 border-t border-border/50">
-              <p className="text-xs text-muted-foreground">
-                <strong>Popular searches:</strong>{" "}
-                <span className="text-blue-400">fix csv</span>,{" "}
-                <span className="text-blue-400">repair csv file online</span>,{" "}
-                <span className="text-blue-400">csv fix</span>,{" "}
-                <span className="text-blue-400">fix broken csv</span>,{" "}
-                <span className="text-blue-400">csv repair tool</span>,{" "}
-                <span className="text-blue-400">csv too big for excel</span>
+              <p className="text-xs text-muted-foreground mb-3">
+                <strong>Popular searches:</strong>
               </p>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/fix-csv">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">fix csv</span>
+                </Link>
+                <Link href="/repair-csv-file-online">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">repair csv file online</span>
+                </Link>
+                <Link href="/csv-fix">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">csv fix</span>
+                </Link>
+                <Link href="/fix-broken-csv">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">fix broken csv</span>
+                </Link>
+                <Link href="/csv-repair-tool">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">csv repair tool</span>
+                </Link>
+                <Link href="/csv-too-big-for-excel">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">csv too big for excel</span>
+                </Link>
+                <Link href="/fix-csv-encoding">
+                  <span className="text-xs px-2 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 cursor-pointer transition-colors">fix csv encoding</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
