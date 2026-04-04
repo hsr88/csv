@@ -105,9 +105,28 @@ export default function FAQPage() {
     document.querySelector('meta[name="description"]')?.setAttribute("content", "Frequently asked questions about csv.repair. Learn about file size limits, SQL queries, auto-repair, keyboard shortcuts, repair templates, and more.");
   }, []);
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <PageHeader />
+      
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} 
+      />
+      
       <div className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
         <div className="flex items-center gap-3 mb-8">
           <HelpCircle className="w-8 h-8 text-blue-500" />

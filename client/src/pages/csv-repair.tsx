@@ -1532,8 +1532,8 @@ export default function CsvRepairPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "csv.repair - Fix Broken CSV Files Online Free | CSV Repair Tool";
-    document.querySelector('meta[name="description"]')?.setAttribute("content", "Free online CSV repair tool. Fix broken, malformed, or oversized CSV files directly in your browser. Edit cells inline, run SQL queries, auto-repair errors, remove duplicates, and export clean data.");
+    document.title = "Fix CSV Files Online Free — Repair Broken CSV in Seconds | csv.repair";
+    document.querySelector('meta[name="description"]')?.setAttribute("content", "Repair broken, corrupted, or too-large CSV files instantly. No upload needed — 100% private browser tool. Fix encoding, remove duplicates, run SQL queries. Try it free!");
   }, []);
 
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -2306,6 +2306,94 @@ export default function CsvRepairPage() {
           )}
         </main>
       </div>
+      
+      {/* SEO Content Section - for search engines and users who scroll */}
+      {!csvData && (
+        <section className="bg-card border-t border-border py-12 px-4">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
+              Free CSV Repair Tool — Fix Broken CSV Files Online
+            </h1>
+            <p className="text-muted-foreground mb-6 leading-relaxed">
+              csv.repair is a free online tool to repair broken, corrupted, or malformed CSV files. 
+              Unlike Excel which crashes with large files, our browser-based tool handles millions of rows 
+              with virtual scrolling. No upload required — your data stays 100% private and secure.
+            </p>
+            
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              Common CSV Problems We Fix
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-3 mb-8">
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                <span className="text-muted-foreground">Encoding issues (mojibake, UTF-8 errors)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                <span className="text-muted-foreground">Files too large for Excel (1M+ rows)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                <span className="text-muted-foreground">Malformed rows with wrong column count</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                <span className="text-muted-foreground">Inconsistent delimiters (commas vs semicolons)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                <span className="text-muted-foreground">Unescaped quotes and special characters</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400">✓</span>
+                <span className="text-muted-foreground">Trailing whitespace and empty rows</span>
+              </div>
+            </div>
+            
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              How to Repair CSV Files — Step by Step
+            </h2>
+            <ol className="list-decimal pl-5 space-y-2 mb-8 text-muted-foreground">
+              <li>Drag & drop your CSV file into the browser window above</li>
+              <li>Check the <strong>Health Check</strong> tab to see detected problems</li>
+              <li>Use <strong>Auto-Repair</strong> (Ctrl+Shift+R) for quick fixes</li>
+              <li>Edit cells inline by double-clicking, or run SQL queries to filter data</li>
+              <li>Export the repaired CSV file — done!</li>
+            </ol>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              Why Use csv.repair Instead of Excel?
+            </h2>
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
+                <h3 className="font-medium text-foreground mb-2">No File Size Limit</h3>
+                <p className="text-muted-foreground">Excel crashes at 1M rows. We handle millions with virtual scrolling.</p>
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
+                <h3 className="font-medium text-foreground mb-2">100% Private</h3>
+                <p className="text-muted-foreground">No upload to servers. Your data never leaves your browser.</p>
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
+                <h3 className="font-medium text-foreground mb-2">Smart Repair</h3>
+                <p className="text-muted-foreground">Auto-detect encoding issues, fix malformed rows, standardize dates.</p>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                <strong>Popular searches:</strong>{" "}
+                <span className="text-blue-400">fix csv</span>,{" "}
+                <span className="text-blue-400">repair csv file online</span>,{" "}
+                <span className="text-blue-400">csv fix</span>,{" "}
+                <span className="text-blue-400">fix broken csv</span>,{" "}
+                <span className="text-blue-400">csv repair tool</span>,{" "}
+                <span className="text-blue-400">csv too big for excel</span>
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       <PageFooter />
     </div>
   );
