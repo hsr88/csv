@@ -156,30 +156,20 @@ export function PageFooter() {
               href="https://github.com/hsr88/csv-repair"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300 transition-colors"
               data-testid="footer-repo"
             >
               <Github className="w-3.5 h-3.5" />
               Repository
             </a>
             <a
-              href="https://github.com/hsr88"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-              data-testid="footer-github"
-            >
-              <Github className="w-3.5 h-3.5" />
-              Author
-            </a>
-            <a
               href="https://ko-fi.com/hsr"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-red-400 hover:text-red-300 transition-colors font-medium"
               data-testid="footer-kofi"
             >
-              <Heart className="w-3.5 h-3.5" />
+              <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
               Support
             </a>
           </div>
