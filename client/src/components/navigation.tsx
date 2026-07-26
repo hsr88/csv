@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, Sun, Moon, FileSpreadsheet, Info, HelpCircle, Shield, Heart, Github, BookOpen } from "lucide-react";
+import { Menu, X, Sun, Moon, FileSpreadsheet, Info, HelpCircle, Shield, Heart, Github, BookOpen, TableProperties } from "lucide-react";
 import { useTheme } from "./theme-provider";
 
 const navLinks = [
+  { href: "/table-capture", label: "Capture tables", icon: TableProperties },
   { href: "/about", label: "About", icon: Info },
   { href: "/faq", label: "FAQ", icon: HelpCircle },
   { href: "/privacy", label: "Privacy Policy", icon: Shield },
@@ -146,6 +147,12 @@ export function PageFooter() {
             <span>&copy; {new Date().getFullYear()} - A free CSV file repair tool.</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/table-capture">
+              <span className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer whitespace-nowrap" data-testid="footer-table-capture">
+                <TableProperties className="w-3.5 h-3.5 text-cyan-500" />
+                Capture tables
+              </span>
+            </Link>
             <Link href="/blog">
               <span className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer" data-testid="footer-blog">
                 <BookOpen className="w-3.5 h-3.5" />

@@ -62,6 +62,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Navigation, PageFooter } from "@/components/navigation";
 import { Link } from "wouter";
+import { TableCapturePromo } from "@/components/table-capture-promo";
 
 type TabType = "editor" | "sql" | "health" | "charts" | "templates";
 type SortDir = "asc" | "desc" | null;
@@ -472,6 +473,7 @@ function EmptyState({ onLoadFile, isDragging }: { onLoadFile: () => void; isDrag
             <Upload className="w-4 h-4" />
             Load CSV File
           </Button>
+          <TableCapturePromo />
           <div className="grid grid-cols-3 gap-4 mt-4 max-w-lg">
             <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/40 border border-border/50">
               <Table2 className="w-5 h-5 text-blue-400" />

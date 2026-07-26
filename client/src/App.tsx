@@ -10,6 +10,7 @@ import FAQPage from "@/pages/faq";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 import BlogPage from "@/pages/blog";
 import LandingPage from "@/pages/landing-page";
+import TableCapturePage from "@/pages/table-capture";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route path="/blog/:slug" component={BlogPage} />
       <Route path="/blog" component={BlogPage} />
+      <Route path="/table-capture" component={TableCapturePage} />
       {/* Landing pages for SEO */}
       <Route path="/fix-csv" component={() => <LandingPage slug="fix-csv" />} />
       <Route path="/repair-csv-file-online" component={() => <LandingPage slug="repair-csv-file-online" />} />

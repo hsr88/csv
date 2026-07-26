@@ -54,6 +54,12 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://www.csv.repair/table-capture</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <!-- Landing pages for SEO -->
   <url>
     <loc>https://www.csv.repair/fix-csv</loc>
